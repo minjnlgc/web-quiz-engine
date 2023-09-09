@@ -1,17 +1,29 @@
-# web-quiz-engine
-A project from JetBrains Academy: https://hyperskill.org/projects/91.
-Learn about REST API, an embedded database, security, and other technologies by doing this project.
+# Web Quiz Engine
 
-Implemented a REST API of a quiz engine with Spring boot, H2 database, Spring security, and Spring JPA.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://mit-license.org/)
 
+## Overview
 
----
-Endpoints:
+Web Quiz Engine is a RESTful API-based quiz management system created as a project for JetBrains Academy. 
+Explore the world of secure and interactive quizzes with Web Quiz Engine.
 
-#### `POST /api/register`
-No authentication is needed.
+## Key Technologies Used
 
-Included the email and the password in the request body:
+- **Java 11+**
+- **Spring Boot**
+- **Spring Security**
+- **Spring JPA**
+- **H2 Database**
+- **REST API Design**
+
+## Features
+
+### User Registration
+
+- **Endpoint:** `POST /api/register`
+- **Authentication:** Not required
+- **Request Body:**
+
 ```json
 {
   "email": "<username>@<domain>.<extension>",
@@ -19,129 +31,163 @@ Included the email and the password in the request body:
 }
 ```
 
-If the email hadn't been taken, it would have been saved in the database.
+- **Description:** Users can register using their email and a password. The system checks if the email is unique and saves it in the database if available.
 
-Else, it would return `400 Bad Requests` 
+### Quiz Listing
 
-#### `GET /api/quizzes`
-Authentication is needed.
+- **Endpoint:** `GET /api/quizzes`
+- **Authentication:** Required
+- **Request Parameter:** `page` for pagination: `/api/quizzes?page={number}`
 
-Accept the `page` parameter `/api/quizzes?page={number}`.
-
+- **Response:**
 
 ```json
 {
-  "totalPages":1,
-  "totalElements":3,
-  "last":true,
-  "first":true,
-  "sort":{ },
-  "number":0,
-  "numberOfElements":3,
-  "size":10,
-  "empty":false,
-  "pageable": { },
-  "content":[
-    {"id":<quiz id>,"title":"<string>","text":"<string>","options":["<string>","<string>","<string>", ...]},
-    {"id":<quiz id>,"title":"<string>","text":"<string>","options":["<string>", "<string>", ...]},
-    {"id":<quiz id>,"title":"<string>","text":"<string>","options":["<string>","<string>", ...]}
+  "totalPages": 1,
+  "totalElements": 3,
+  "last": true,
+  "first": true,
+  "sort": {},
+  "number": 0,
+  "numberOfElements": 3,
+  "size": 10,
+  "empty": false,
+  "pageable": {},
+  "content": [
+    {
+      "id": <quiz id>,
+      "title": "<string>",
+      "text": "<string>",
+      "options": ["<string>", "<string>", "<string>", ...]
+    },
+    {
+      "id": <quiz id>,
+      "title": "<string>",
+      "text": "<string>",
+      "options": ["<string>", "<string>", ...]
+    },
+    {
+      "id": <quiz id>,
+      "title": "<string>",
+      "text": "<string>",
+      "options": ["<string>", "<string>", ...]
+    }
   ]
 }
 ```
 
-#### `POST /api/quizzes`
-Authentication is needed.
+- **Description:** Authenticated users can access a list of quizzes. The response includes pagination details.
 
-Create a new quiz.
+### Quiz Creation
 
-Including the new quiz in the request body.
-
-- `title`: a string, required;
-- `text`: a string, required;
-- `options`: an array of strings, required, should contain at least 2 items;
-- `answer`: an array of integer indexes of correct options, can be absent or empty if all options are wrong.
+- **Endpoint:** `POST /api/quizzes`
+- **Authentication:** Required
+- **Request Body:**
 
 ```json
 {
   "title": "<string, not null, not empty>",
-  "text": "<string, <not null, not empty>",
-  "options": ["<string 1>","<string 2>","<string 3>", ...],
-  "answer": [<integer>,<integer>, ...]
+  "text": "<string, not null, not empty>",
+  "options": ["<string 1>", "<string 2>", "<string 3>", ...],
+  "answer": [<integer>, <integer>, ...]
 }
 ```
 
-If the quiz is created successfully, the response would be:
+- **Response:**
+
 ```json
 {
   "id": <integer>,
   "title": "<string>",
   "text": "<string>",
-  "options": ["<string 1>","<string 2>","<string 3>", ...]
+  "options": ["<string 1>", "<string 2>", "<string 3>", ...]
 }
 ```
 
-#### `GET /api/quizzes/{id}`
-Authentication is needed. Get the quiz by id.
+- **Description:** Authenticated users can create quizzes with specified titles, questions, options, and correct answers. Successful creation results in a response containing quiz details.
 
-If no such quiz, the response would be `404 NOT FOUND`.
+### Quiz Retrieval
 
-#### `POST /api/quizzes/{id}/solve`
-Authentication is needed.
+- **Endpoint:** `GET /api/quizzes/{id}`
+- **Authentication:** Required
 
-Including the answer in the request body:
+- **Response:** Returns quiz details by ID or `404 NOT FOUND` if the quiz doesn't exist.
+
+### Quiz Submission
+
+- **Endpoint:** `POST /api/quizzes/{id}/solve`
+- **Authentication:** Required
+- **Request Body:**
+
 ```json
 {
   "answer": [<integer>, <integer>, ...]
 }
 ```
 
-If the answer is correct, the response:
+- **Response:**
+
 ```json
 {
-  "success":true,
-  "feedback":"Congratulations, you're right!"
+  "success": true,
+  "feedback": "Congratulations, you're right!"
 }
 ```
 
-otherwise, the response would be:
+- **Description:** Authenticated users can submit answers to quizzes. The system provides feedback based on correctness.
+
+### Quiz Deletion
+
+- **Endpoint:** `DELETE /api/quizzes/{id}`
+- **Authentication:** Required
+- **Description:** Users can delete quizzes they've created. Successful deletion results in a `204 (NO CONTENT)` status. If the specified quiz doesn't exist, the server returns `404 (NOT FOUND)`. If the specified user is not the author of this quiz, the response is `403 (FORBIDDEN)`.
+
+### Completed Quizzes
+
+- **Endpoint:** `GET /api/quizzes/completed`
+- **Authentication:** Required
+
+- **Response:**
+
 ```json
 {
-  "success":false,
-  "feedback":"Wrong answer! Please, try again."
-}
-```
-
-If no such quiz, the response would be `404 NOT FOUND`.
-
-
-#### `DELETE /api/quizzes/{id}`
-Authentication is needed.
-
-Users can only delete the quiz created by themselves but not by others.
-
-If the operation was successful, the service returns the `204 (NO CONTENT)` status code without any content.
-
-If the specified quiz does not exist, the server returns `404 (NOT FOUND)`. If the specified user is not the author of this quiz, the response is the `403 (FORBIDDEN)` status code.
-
-#### `GET /api/quizzes/completed`
-Authentication is needed.
-
-Get the quiz the current user has answered correctly.
-
-If there are no completed quizzes for the authenticated user, the content is empty `[]`. If the user is authenticated, the status code is `200 (OK)`; otherwise, it's `401 (UNAUTHORIZED)`.
-```json
-{
-  "totalPages":1,
-  "totalElements":5,
-  "last":true,
-  "first":true,
-  "empty":false,
-  "content":[
-    {"id":<quiz id>,"completedAt":"<date_time>"},
-    {"id":<quiz id>,"completedAt":"<date_time>"},
-    {"id":<quiz id>,"completedAt":"<date_time>"},
-    {"id":<quiz id>,"completedAt":"<date_time>"},
-    {"id":<quiz id>,"completedAt":"<date_time>"}
+  "totalPages": 1,
+  "totalElements": 5,
+  "last": true,
+  "first": true,
+  "empty": false,
+  "content": [
+    {
+      "id": <quiz id>,
+      "completedAt": "<date_time>"
+    },
+    {
+      "id": <quiz id>,
+      "completedAt": "<date_time>"
+    },
+    {
+      "id": <quiz id>,
+      "completedAt": "<date_time>"
+    },
+    {
+      "id": <quiz id>,
+      "completedAt": "<date_time>"
+    },
+    {
+      "id": <quiz id>,
+      "completedAt": "<date_time>"
+    }
   ]
 }
 ```
+
+- **Description:** Authenticated users can view quizzes they've answered correctly. The response includes pagination details.
+
+
+## License
+
+This project is licensed under the [MIT License](https://mit-license.org/). 
+
+## Credits
+
+This project was based on https://hyperskill.org/projects/91.
